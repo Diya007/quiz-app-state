@@ -41,6 +41,12 @@ var QUESTIONS = [
     }
 ];
 
+var state={
+    score:0,
+    current:0
+}
+
+
 var questionsPageElement = $('.questions-page');
 var questionCurrentElement = $('.question-current');
 var questionsTotalElement = $('.questions-total');
@@ -61,16 +67,20 @@ var showQuestions = function() {
     questionsPageElement.show();
 };
 
-var resetScore = function() {
-    scoreElement.text(0);
+var resetState = function(state, element) {
+    state.current = 0;
+    state.score = 0;
+    element.text(state.score);
 };
 
-var increaseScore = function() {
-    var score = parseInt(scoreElement.text(), 10);
-    scoreElement.text(score + 1);
+var increaseScore = function(state, element) {
+    state.score += 1; 
+    element.text(state.score);
 };
 
-var setQuestion = function(questionIndex) {
+
+var setQuestion = function(state) {
+    var questionIndex = state.current;
     var question = QUESTIONS[questionIndex];
     questionCurrentElement.text(questionIndex);
     questionElement.text(question.text);
@@ -79,6 +89,7 @@ var setQuestion = function(questionIndex) {
         var answer = question.answers[i];
         answersElement.append('<li><button type="button">' + answer + '</button></li>');
     }
+    state.current++
 };
 
 answersElement.on('click', 'button', function() {
@@ -86,11 +97,11 @@ answersElement.on('click', 'button', function() {
     var questionIndex = parseInt(questionCurrentElement.text(), 10);
     var question = QUESTIONS[questionIndex];
     if (question.correct === choice) {
-        increaseScore();
+        increaseScore(state,scoreElement);
     }
 
     if (questionIndex + 1 < QUESTIONS.length) {
-        setQuestion(questionIndex + 1);
+        setQuestion(state);
     }
     else {
         showResults();
@@ -98,13 +109,18 @@ answersElement.on('click', 'button', function() {
 });
 
 restartButtonElement.click(function() {
-    setQuestion(0);
-    resetScore();
+    resetState(state, scoreElement);
+    setQuestion(state);
     showQuestions();
 });
 
 $(document).ready(function() {
     questionsTotalElement.text(QUESTIONS.length);
-    setQuestion(0);
+    setQuestion(state);
 });
+
+
+
+
+
 
